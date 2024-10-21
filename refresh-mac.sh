@@ -10,4 +10,4 @@ then
     fi
 fi
 
-darwin-rebuild switch --flake ~/.nix#rohan
+darwin-rebuild switch --flake ~/.nix/flake-mac.nix#rohan
