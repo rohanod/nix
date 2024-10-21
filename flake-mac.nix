@@ -60,7 +60,7 @@
             pkgs.google-chrome
             pkgs.whatsapp-for-mac
             pkgs.defaultbrowser
-            pkgs.oh-my-posh
+            pkgs.zed-editor
           ];
 
           #Fetch Screensaver MP4 files
