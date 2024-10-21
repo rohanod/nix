@@ -61,6 +61,7 @@
             pkgs.whatsapp-for-mac
             pkgs.defaultbrowser
             pkgs.zed-editor
+            pkgs.iterm2
           ];
 
           #Fetch Screensaver MP4 files

@@ -42,20 +42,21 @@
 
           # Additional Packages
           environment.systemPackages = with pkgs; [
-            tmux
-            curl
-            git
-            pipx
-            python3
-            python3Packages.pip
-            docker
-            docker-compose
-            go
-            vscode
-            vscode-extensions.github.copilot
-            vscode-extensions.github.copilot-chat
-            vscode-extensions.ms-python.vscode-pylance
-            firefox
+            pkgs.tmux
+            pkgs.curl
+            pkgs.git
+            pkgs.pipx
+            pkgs.python3
+            pkgs.python3Packages.pip
+            pkgs.docker
+            pkgs.docker-compose
+            pkgs.go
+            pkgs.vscode
+            pkgs.vscode-extensions.github.copilot
+            pkgs.vscode-extensions.github.copilot-chat
+            pkgs.vscode-extensions.ms-python.vscode-pylance
+            pkgs.firefox
+            pkgs.alacritty
           ];
 
           # Auto install script to run upon boot
