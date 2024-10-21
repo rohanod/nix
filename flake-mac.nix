@@ -39,7 +39,6 @@
           environment.systemPackages = [
             pkgs.tmux
             pkgs.mkalias
-            pkgs.oh-my-zsh
             pkgs.python311Packages.ansible-core
             pkgs.asciiquarium
             pkgs.create-dmg
@@ -61,6 +60,7 @@
             pkgs.whatsapp-for-mac
             pkgs.defaultbrowser
             pkgs.zed-editor
+            pkgs.oh-my-posh
             pkgs.iterm2
           ];
 
