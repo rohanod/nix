@@ -1,5 +1,3 @@
-# NixOS Flake for creating an ISO with GNOME and automatic installer
-
 {
   description = "NixOS flake for creating an installable ISO with GNOME and automated installation";
 
@@ -28,8 +26,8 @@
             shell = pkgs.zsh;
           };
 
-          # Enable oh-my-posh
-          programs.oh-my-posh.enable = true;
+          # Enable zsh-autosuggestions
+          programs.zsh.plugins = [ pkgs.zsh-autosuggestions ];
 
           # Enable GNOME
           services.xserver.enable = true;
@@ -57,6 +55,7 @@
             pkgs.vscode-extensions.ms-python.vscode-pylance
             pkgs.firefox
             pkgs.alacritty
+            pkgs.zsh-autosuggestions
           ];
 
           # Auto install script to run upon boot

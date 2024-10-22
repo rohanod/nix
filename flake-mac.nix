@@ -60,8 +60,9 @@
             pkgs.whatsapp-for-mac
             pkgs.defaultbrowser
             pkgs.zed-editor
-            pkgs.oh-my-posh
+            pkgs.oh-my-zsh
             pkgs.iterm2
+            pkgs.zsh-autosuggestions
           ];
 
           #Fetch Screensaver MP4 files
