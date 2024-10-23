@@ -50,6 +50,15 @@ install_nix_darwin() {
     MAC_FLAKE_PATH="$HOME/.nix/Mac#rohan"
     check_and_prompt_install_nix
     echo "Running nix-darwin installation command..."
+    
+    # Log paths to critical dependencies
+    echo "Checking if MAC_FLAKE_PATH exists: $MAC_FLAKE_PATH"
+    if [ ! -d "$HOME/.nix/Mac" ]; then
+        echo "Error: The Mac flake directory does not exist at $HOME/.nix/Mac. Exiting..."
+        exit 1
+    fi
+    
+    echo "Running nix-darwin installation command with flake path: $MAC_FLAKE_PATH"
     nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake "$MAC_FLAKE_PATH" --impure --show-trace
     if [ $? -ne 0 ]; then
         echo "Failed to install nix-darwin. Exiting..."
