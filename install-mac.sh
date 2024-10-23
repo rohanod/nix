@@ -10,4 +10,4 @@ then
     fi
 fi
 
-nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake ~/.nix/flake-mac.nix#rohan
+nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake ~/.nix/#rohan

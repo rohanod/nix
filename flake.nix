@@ -63,6 +63,7 @@
             pkgs.oh-my-zsh
             pkgs.iterm2
             pkgs.zsh-autosuggestions
+            pkgs.fabric-ai
           ];
 
           #Fetch Screensaver MP4 files
@@ -90,12 +91,6 @@
           sudo curl -L https://d.keka.io/helper -o /Applications/Keka\ Helper.zip
           sudo unzip /Applications/Keka\ Helper.zip -d /Applications/Keka\ Helper.app
           sudo rm /Applications/Keka\ Helper.zip
-          '';
-
-          # Install Fabric
-          system.activationScripts.installFabric.text = ''
-            echo "Installing Fabric..."
-            ${pkgs.go}/bin/go install github.com/danielmiessler/fabric@latest || true
           '';
 
           # Install GPTMe
