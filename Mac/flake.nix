@@ -124,45 +124,45 @@
           '
           '';
 
-          homebrew = {
-            enable = true;
-            casks = [ 
-              "brave-browser"
-              "aerial"
-              "docker"
-              "chatgpt"
-              "hovrly"
-              "keyclu"
-              "miniconda"
-              "shottr"
-              "mochi-diffusion"
-              "mounty"
-              "vmware-fusion"
-              "tor-browser"
-              "raspberry-pi-imager"
-              "ultimaker-cura"
-              "obs"
-              "zed"
-            ];
-            brews = [
-              "docker-compose"
-            ];
-            masApps = {
-              "Keka" = 470158793;
-              "Surfshark VPN" = 1437809329;
-              "Speediness" = 1596706466;
-              "Online Check" = 6504709660;
-              "Diffusers" = 1666309574;
-              "Dropover" = 1355679052;
-              "Hyperduck" = 6444667067;
-              "Tapo" = 1472718009;
-              "Deco" = 1186159417;
-              "Draw Things" = 6444050820;
-              "Localsend" = 1661733229;
-              "Velja" = 1607635845;
-            };
-            onActivation.cleanup = "zap";
-          };
+          # homebrew = {
+          #   enable = true;
+          #   casks = [ 
+          #     "brave-browser"
+          #     "aerial"
+          #     "docker"
+          #     "chatgpt"
+          #     "hovrly"
+          #     "keyclu"
+          #     "miniconda"
+          #     "shottr"
+          #     "mochi-diffusion"
+          #     "mounty"
+          #     "vmware-fusion"
+          #     "tor-browser"
+          #     "raspberry-pi-imager"
+          #     "ultimaker-cura"
+          #     "obs"
+          #     "zed"
+          #   ];
+          #   brews = [
+          #     "docker-compose"
+          #   ];
+          #   masApps = {
+          #     "Keka" = 470158793;
+          #     "Surfshark VPN" = 1437809329;
+          #     "Speediness" = 1596706466;
+          #     "Online Check" = 6504709660;
+          #     "Diffusers" = 1666309574;
+          #     "Dropover" = 1355679052;
+          #     "Hyperduck" = 6444667067;
+          #     "Tapo" = 1472718009;
+          #     "Deco" = 1186159417;
+          #     "Draw Things" = 6444050820;
+          #     "Localsend" = 1661733229;
+          #     "Velja" = 1607635845;
+          #   };
+          #   onActivation.cleanup = "zap";
+          # };
 
           services.nix-daemon.enable = true;
           nix.settings.experimental-features = "nix-command flakes";
@@ -202,6 +202,7 @@
             enable = true;
             enableRosetta = true;
             user = "rohan";
+            autoMigrate = false;
 
             taps = {
               "homebrew/homebrew-core" = homebrew-core;
