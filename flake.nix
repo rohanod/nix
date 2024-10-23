@@ -2,7 +2,7 @@
   description = "Rohan's Customized Darwin Configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/master";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     nix-darwin.url = "github:LnL7/nix-darwin";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -60,7 +60,7 @@
             pkgs.whatsapp-for-mac
             pkgs.defaultbrowser
             pkgs.zed-editor
-            pkgs.oh-my-zsh
+            # pkgs.oh-my-zsh
             pkgs.iterm2
             pkgs.zsh-autosuggestions
             pkgs.fabric-ai
@@ -141,6 +141,7 @@
               "raspberry-pi-imager"
               "ultimaker-cura"
               "obs"
+              "zed"
             ];
             brews = [
               "docker-compose"

@@ -9,5 +9,5 @@ then
         exit 1
     fi
 fi
-
-nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake ~/.nix/#rohan
+export NIXPKGS_ALLOW_BROKEN=1
+nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake ~/.nix/#rohan --impure
