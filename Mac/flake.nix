@@ -65,6 +65,7 @@
             pkgs.zsh-autosuggestions
             pkgs.fabric-ai
             pkgs.vagrant
+            pkgs.aria2
           ];
 
 

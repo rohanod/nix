@@ -48,7 +48,7 @@ install_nix_darwin() {
     MAC_FLAKE_PATH="/Users/rohan/.nix/Mac#rohan"
     check_and_prompt_install_nix
     echo "Running nix-darwin installation command..."
-    sudo HOME=/Users/rohan nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake "$MAC_FLAKE_PATH" --impure --show-trace
+    sudo --preserve-env=HOME nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake "$MAC_FLAKE_PATH" --impure --show-trace
     if [ $? -ne 0 ]; then
         echo "Failed to install nix-darwin. Exiting..."
         exit 1
