@@ -26,7 +26,7 @@ check_and_prompt_install_nix() {
 build_iso() {
     LINUX_FLAKE_PATH="$HOME/.nix/Linux#iso"
     echo "Building the NixOS ISO using flake at $LINUX_FLAKE_PATH..."
-    nix build "$LINUX_FLAKE_PATH" --no-link
+    nix build "$LINUX_FLAKE_PATH" --no-link --show-trace
     if [ $? -ne 0 ]; then
         echo "Error occurred during ISO build process. Exiting..."
         exit 1
@@ -48,7 +48,7 @@ install_nix_darwin() {
     MAC_FLAKE_PATH="$HOME/.nix/Mac#rohan"
     check_and_prompt_install_nix
     echo "Running nix-darwin installation command..."
-    nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake "$MAC_FLAKE_PATH" --impure
+    nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake "$MAC_FLAKE_PATH" --impure --show-trace
     if [ $? -ne 0 ]; then
         echo "Failed to install nix-darwin. Exiting..."
         exit 1
