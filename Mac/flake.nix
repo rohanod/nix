@@ -61,7 +61,6 @@
             pkgs.defaultbrowser
             # pkgs.zed-editor
             pkgs.oh-my-zsh
-            pkgs.iterm2
             pkgs.zsh-autosuggestions
             pkgs.fabric-ai
             pkgs.vagrant
