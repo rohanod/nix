@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x  # Enable debug mode to print each command before executing it
+
 check_and_prompt_install_nix() {
     echo "Checking if Nix is installed..."
     if ! command -v nix &> /dev/null
