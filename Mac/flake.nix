@@ -59,8 +59,8 @@
             pkgs.google-chrome
             pkgs.whatsapp-for-mac
             pkgs.defaultbrowser
-            pkgs.zed-editor
-            # pkgs.oh-my-zsh
+            # pkgs.zed-editor
+            pkgs.oh-my-zsh
             pkgs.iterm2
             pkgs.zsh-autosuggestions
             pkgs.fabric-ai
