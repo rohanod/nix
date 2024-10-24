@@ -62,7 +62,7 @@ check_and_prompt_install_nix() {
 
             echo "Installing Nix..."
             curl -L https://nixos.org/nix/install | sh 
-            source ~/.zshrc
+            zsh source ~/.zshrc
             if [ $? -ne 0 ]; then
                 echo "Failed to install Nix. Exiting..."
                 exit 1
