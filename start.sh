@@ -7,8 +7,16 @@ check_and_prompt_install_nix() {
         echo "Nix is not installed."
         read -p "Do you want to install Nix? (y/n): " install_choice
         if [[ "$install_choice" == "y" || "$install_choice" == "Y" ]]; then
+            if [ -e /etc/bash.bashrc.backup-before-nix ] || [ -e /etc/zshrc.backup-before-nix ]; then
+                echo "Cleanup old Nix installing process..."
+                [ -e /etc/bash.bashrc.backup-before-nix ] && sudo mv /etc/bash.bashrc.backup-before-nix /etc/bash.bashrc > /dev/null 2>&1
+                [ -e /etc/zshrc.backup-before-nix ] && sudo mv /etc/zshrc.backup-before-nix /etc/zshrc > /dev/null 2>&1
+                echo "Cleaned up old Nix installing process..."
+            fi
+
             echo "Installing Nix..."
-            sh <(curl -L https://nixos.org/nix/install)
+            curl -L https://nixos.org/nix/install | sh -s -- --daemon
+            source ~/.zshrc
             if [ $? -ne 0 ]; then
                 echo "Failed to install Nix. Exiting..."
                 exit 1

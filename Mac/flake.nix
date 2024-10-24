@@ -57,7 +57,7 @@
             pkgs.vscode-extensions.ms-python.vscode-pylance
             pkgs.raycast
             pkgs.google-chrome
-            pkgs.whatsapp-for-mac
+            # pkgs.whatsapp-for-mac
             pkgs.defaultbrowser
             # pkgs.zed-editor
             pkgs.oh-my-zsh
@@ -164,6 +164,7 @@
               "ultimaker-cura"
               "obs"
               "zed"
+              "parsec"
             ];
             brews = [
               "docker-compose"
@@ -181,6 +182,7 @@
               "Draw Things" = 6444050820;
               "Localsend" = 1661733229;
               "Velja" = 1607635845;
+              "Whatsapp" = 310633997;
             };
             onActivation.cleanup = "zap";
           };
