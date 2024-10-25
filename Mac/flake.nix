@@ -226,7 +226,6 @@
             enable = true;
             enableRosetta = true;
             user = "rohan";
-            autoMigrate = false;
 
             taps = {
               "homebrew/homebrew-core" = homebrew-core;
