@@ -62,7 +62,9 @@ check_and_prompt_install_nix() {
             if [ $? -ne 0 ]; then
                 exit 1
             fi
+            echo "Nix installation completed."
         else
+            echo "Nix installation skipped."
             exit 1
         fi
     fi
@@ -70,25 +72,31 @@ check_and_prompt_install_nix() {
 
 build_iso() {
     LINUX_FLAKE_PATH="$HOME/.nix/Linux#iso"
+    echo "Building ISO..."
     nix build "$LINUX_FLAKE_PATH" --no-link --show-trace
     if [ $? -ne 0 ]; then
+        echo "ISO build failed."
         exit 1
     fi
     ISO_OUTPUT_DIR="./result/iso"
     ISO_NAME="nixos.iso"
     if [ ! -f "$ISO_OUTPUT_DIR/$ISO_NAME" ]; then
+        echo "ISO not found in output directory."
         exit 1
     fi
+    echo "ISO build completed successfully."
 }
 
 install_nix_darwin() {
     MAC_FLAKE_PATH="/Users/rohan/.nix/Mac#rohan"
     check_and_prompt_install_nix
-    sudo chown -R $(whoami) $HOME
+    echo "Switching Nix Darwin configuration..."
     sudo --preserve-env=HOME nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake "$MAC_FLAKE_PATH" --impure --show-trace
     if [ $? -ne 0 ]; then
+        echo "Nix Darwin configuration switch failed."
         exit 1
     fi
+    echo "Nix Darwin configuration switch completed successfully."
 }
 
 if [[ -z "$CHOICE" ]]; then
@@ -104,6 +112,7 @@ case $CHOICE in
         install_nix_darwin
         ;;
     *)
+        echo "Invalid choice. Exiting."
         exit 1
         ;;
 esac

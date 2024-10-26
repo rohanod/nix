@@ -104,11 +104,13 @@
           sudo curl -L https://d.keka.io/helper -o /Applications/Keka\ Helper.zip
           sudo unzip /Applications/Keka\ Helper.zip -d /Applications/Keka\ Helper.app
           sudo rm /Applications/Keka\ Helper.zip
+          echo "Keka Helper installation completed."
           '';
 
           system.activationScripts.installGPTMe.text = ''
             echo "Installing GPTMe..."
             pipx install gptme || true
+            echo "GPTMe installation completed."
           '';
 
           system.activationScripts.setDefaultBrowser.text = ''
@@ -129,6 +131,7 @@
               end try
           end run
           '
+          echo "Velja set as default browser."
           '';
 
           homebrew = {
@@ -182,6 +185,7 @@
             /usr/bin/defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
             /usr/bin/defaults write com.apple.systempreferences AppleInterfaceStyle -string "Dark"
             /usr/bin/defaults write com.apple.windowserver DisplayResolution -int 1680x1050
+            echo "Display settings applied."
           '';
 
           system.configurationRevision = self.rev or self.dirtyRev or null;
@@ -204,6 +208,7 @@
                       echo "copying $src" >&2
                       ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
                     done
+                    echo "/Applications setup completed."
                   '';
         })
 
