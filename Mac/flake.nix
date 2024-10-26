@@ -57,9 +57,7 @@
             pkgs.vscode-extensions.ms-python.vscode-pylance
             pkgs.raycast
             pkgs.google-chrome
-            # pkgs.whatsapp-for-mac
             pkgs.defaultbrowser
-            # pkgs.zed-editor
             pkgs.oh-my-zsh
             pkgs.zsh-autosuggestions
             pkgs.fabric-ai
@@ -67,10 +65,6 @@
             pkgs.aria2
           ];
 
-
-
-
-          #Fetch Screensaver MP4 files
           system.activationScripts.fetchScreensaverFiles = ''
           echo "Fetching Screensaver files..."
           git clone https://github.com/rjt11221/screensavers.git
@@ -84,7 +78,6 @@
                   };
                 in
                   pkgs.lib.mkForce ''
-                    # Set up applications.
                     echo "setting up /Applications..." >&2
                     rm -rf /Applications/Nix\ Apps
                     mkdir -p /Applications/Nix\ Apps
@@ -96,7 +89,6 @@
                     done
                   '';
 
-          # Pinokio installation script
           system.activationScripts.installPinokio.text = ''
             echo "Downloading and installing Pinokio Computer..."
             curl -L https://github.com/pinokiocomputer/pinokio/releases/download/2.15.1/Pinokio-2.15.1-arm64.dmg -o /tmp/Pinokio-2.15.1-arm64.dmg
@@ -107,7 +99,6 @@
             echo "Pinokio Computer installed successfully."
           '';
 
-          # Install Keka Helper
           system.activationScripts.installKekaHelper.text = ''
           echo "Installing Keka Helper..."
           sudo curl -L https://d.keka.io/helper -o /Applications/Keka\ Helper.zip
@@ -115,21 +106,16 @@
           sudo rm /Applications/Keka\ Helper.zip
           '';
 
-          # Install GPTMe
           system.activationScripts.installGPTMe.text = ''
             echo "Installing GPTMe..."
             pipx install gptme || true
           '';
 
-          # Make default browser Velja
           system.activationScripts.setDefaultBrowser.text = ''
           echo "Setting Velja as default browser..."
           osascript -e '
           on run
-              -- Set Velja as the default browser
               do shell script "defaultbrowser velja"
-
-              -- Try to interact with the UI button if it appears
               try
                   tell application "System Events"
                       tell application process "CoreServicesUIAgent"
@@ -165,6 +151,7 @@
               "obs"
               "zed"
               "parsec"
+              "twingate"
             ];
             brews = [
               "docker-compose"
@@ -208,7 +195,6 @@
                   };
                 in
                   pkgs.lib.mkForce ''
-                    # Set up applications.
                     echo "setting up /Applications..." >&2
                     rm -rf /Applications/Nix\ Apps
                     mkdir -p /Applications/Nix\ Apps
