@@ -50,10 +50,9 @@ check_and_prompt_install_nix() {
                 sudo sed -i '' '/nix/d' /etc/synthetic.conf
                 [ ! -s /etc/synthetic.conf ] && sudo rm /etc/synthetic.conf
 
-                sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels
-                sudo diskutil apfs deleteVolume /nix
-                sudo rm -rf /nix ~/.nix-profile ~/.nix-defexpr ~/.nix-channels ~/.cache/nix
+                sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels ~/.cache/nix
 
+                sudo diskutil apfs deleteVolume /nix
                 sudo nix-collect-garbage -d
             fi
 
@@ -88,10 +87,10 @@ build_iso() {
 }
 
 install_nix_darwin() {
-    MAC_FLAKE_PATH="/Users/rohan/.nix/Mac#rohan"
+    MAC_FLAKE_PATH="$HOME/.nix/Mac#rohan"
     check_and_prompt_install_nix
     echo "Switching Nix Darwin configuration..."
-    sudo --preserve-env=HOME nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake "$MAC_FLAKE_PATH" --impure --show-trace
+    nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake "$MAC_FLAKE_PATH" --impure --show-trace
     if [ $? -ne 0 ]; then
         echo "Nix Darwin configuration switch failed."
         exit 1

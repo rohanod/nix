@@ -69,8 +69,7 @@
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
-          echo "Fetching Screensaver files..."
-          git clone https://github.com/rjt11221/screensavers.git
+            git clone https://github.com/rjt11221/screensavers.git "$HOME/screensavers"
           '';
 
           system.activationScripts.applicationsNX.text = let
@@ -81,60 +80,50 @@
                   };
                 in
                   pkgs.lib.mkForce ''
-                    echo "setting up /Applications..." >&2
                     rm -rf /Applications/Nix\ Apps
                     mkdir -p /Applications/Nix\ Apps
                     find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
                     while read src; do
                       app_name=$(basename "$src")
-                      echo "copying $src" >&2
                       ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
                     done
                   '';
 
           system.activationScripts.installPinokio.text = ''
-            echo "Downloading and installing Pinokio Computer..."
             curl -L https://github.com/pinokiocomputer/pinokio/releases/download/2.15.1/Pinokio-2.15.1-arm64.dmg -o /tmp/Pinokio-2.15.1-arm64.dmg
             hdiutil attach /tmp/Pinokio-2.15.1-arm64.dmg
             sudo cp -R /Volumes/Pinokio/Pinokio.app /Applications/
             hdiutil detach /Volumes/Pinokio
             rm /tmp/Pinokio-2.15.1-arm64.dmg
-            echo "Pinokio Computer installed successfully."
           '';
 
           system.activationScripts.installKekaHelper.text = ''
-          echo "Installing Keka Helper..."
-          sudo curl -L https://d.keka.io/helper -o /Applications/Keka\ Helper.zip
-          sudo unzip /Applications/Keka\ Helper.zip -d /Applications/Keka\ Helper.app
-          sudo rm /Applications/Keka\ Helper.zip
-          echo "Keka Helper installation completed."
+            sudo curl -L https://d.keka.io/helper -o /Applications/Keka\ Helper.zip
+            sudo unzip /Applications/Keka\ Helper.zip -d /Applications/Keka\ Helper.app
+            sudo rm /Applications/Keka\ Helper.zip
           '';
 
           system.activationScripts.installGPTMe.text = ''
-            echo "Installing GPTMe..."
             pipx install gptme || true
-            echo "GPTMe installation completed."
           '';
 
           system.activationScripts.setDefaultBrowser.text = ''
-          echo "Setting Velja as default browser..."
-          osascript -e '
-          on run
-              do shell script "defaultbrowser velja"
-              try
-                  tell application "System Events"
-                      tell application process "CoreServicesUIAgent"
-                          tell window 1
-                              tell (first button whose name starts with "use")
-                                  perform action "AXPress"
-                              end tell
-                          end tell
-                      end tell
-                  end tell
-              end try
-          end run
-          '
-          echo "Velja set as default browser."
+            osascript -e '
+            on run
+                do shell script "defaultbrowser velja"
+                try
+                    tell application "System Events"
+                        tell application process "CoreServicesUIAgent"
+                            tell window 1
+                                tell (first button whose name starts with "use")
+                                    perform action "AXPress"
+                                end tell
+                            end tell
+                        end tell
+                    end tell
+                end try
+            end run
+            '
           '';
 
           homebrew = {
@@ -185,11 +174,9 @@
           nix.settings.experimental-features = "nix-command flakes";
 
           system.activationScripts.displaySettings.text = ''
-            echo "Setting display to 1680x1050 resolution..."
             /usr/bin/defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
             /usr/bin/defaults write com.apple.systempreferences AppleInterfaceStyle -string "Dark"
             /usr/bin/defaults write com.apple.windowserver DisplayResolution -int 1680x1050
-            echo "Display settings applied."
           '';
 
           system.configurationRevision = self.rev or self.dirtyRev or null;
@@ -203,16 +190,13 @@
                   };
                 in
                   pkgs.lib.mkForce ''
-                    echo "setting up /Applications..." >&2
                     rm -rf /Applications/Nix\ Apps
                     mkdir -p /Applications/Nix\ Apps
                     find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
                     while read src; do
                       app_name=$(basename "$src")
-                      echo "copying $src" >&2
                       ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
                     done
-                    echo "/Applications setup completed."
                   '';
         })
 
