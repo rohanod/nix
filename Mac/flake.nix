@@ -63,6 +63,9 @@
             pkgs.fabric-ai
             pkgs.vagrant
             pkgs.aria2
+            pkgs.lilypond-with-fonts
+            pkgs.timidity
+            pkgs.ffmpeg
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
@@ -155,6 +158,7 @@
               "zed"
               "parsec"
               "twingate"
+              "sigmaos"
             ];
             brews = [
               "docker-compose"
