@@ -66,6 +66,7 @@
             pkgs.lilypond-with-fonts
             pkgs.timidity
             pkgs.ffmpeg
+            pkgs.ariang
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
