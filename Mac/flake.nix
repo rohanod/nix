@@ -82,7 +82,6 @@
             pkgs.vscode-extensions.github.copilot-chat
             pkgs.vscode-extensions.ms-python.vscode-pylance
             pkgs.raycast
-            pkgs.google-chrome
             pkgs.defaultbrowser
             pkgs.oh-my-zsh
             pkgs.zsh-autosuggestions
@@ -182,10 +181,10 @@
               "parsec"
               "twingate"
               "sigmaos"
+              "google-chrome"
             ];
             brews = [
               "docker-compose"
-              "create-dmg"
             ];
             masApps = {
               "Keka" = 470158793;
