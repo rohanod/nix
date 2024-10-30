@@ -70,7 +70,6 @@
             pkgs.mkalias
             pkgs.python311Packages.ansible-core
             pkgs.asciiquarium
-            pkgs.create-dmg
             pkgs.curl
             pkgs.git
             pkgs.mas
@@ -186,6 +185,7 @@
             ];
             brews = [
               "docker-compose"
+              "create-dmg"
             ];
             masApps = {
               "Keka" = 470158793;
