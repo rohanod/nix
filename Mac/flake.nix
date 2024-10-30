@@ -182,6 +182,8 @@
               "twingate"
               "sigmaos"
               "google-chrome"
+              "twingate"
+              "parsec"
             ];
             brews = [
               "docker-compose"
@@ -201,6 +203,7 @@
               "Localsend" = 1661733229;
               "Velja" = 1607635845;
               "Whatsapp" = 310633997;
+              "Crystal Fetch" = 6454431289;
             };
             onActivation.cleanup = "zap";
           };
