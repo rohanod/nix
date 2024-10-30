@@ -2,11 +2,19 @@
   description = "Rohan's Customized Darwin Configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/24.05";
-    nix-darwin.url = "github:LnL7/nix-darwin";
-    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
+    # Use a specific commit hash for better stability
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
+    nix-homebrew = {
+      url = "github:zhaofengli-wip/nix-homebrew";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
     homebrew-core = {
       url = "github:Homebrew/homebrew-core";
       flake = false;
@@ -23,7 +31,10 @@
 
     pkgs = import nixpkgs {
       inherit system;
-      config = { allowUnfree = true; };
+      config = { 
+        allowUnfree = true;
+        allowUnsupportedSystem = false;
+      };
     };
   in
   {
@@ -36,6 +47,24 @@
         nix-homebrew.darwinModules.nix-homebrew
 
         ({ pkgs, config, lib, ... }: {
+          # Enhanced Nix settings
+          nix.settings = {
+            experimental-features = [ "nix-command" "flakes" ];
+            auto-optimise-store = true;
+            trusted-users = [ "@admin" "rohan" ];
+            max-jobs = "auto";
+            cores = 0;
+            # Add substituters for faster downloads
+            substituters = [
+              "https://cache.nixos.org"
+              "https://nix-community.cachix.org"
+            ];
+            trusted-public-keys = [
+              "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+              "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+            ];
+          };
+
           environment.systemPackages = [
             pkgs.tmux
             pkgs.mkalias
@@ -48,8 +77,6 @@
             pkgs.pipx
             pkgs.go
             pkgs.alttab
-            pkgs.arc-browser
-            pkgs.bartender
             pkgs.spotify
             pkgs.vscode
             pkgs.vscode-extensions.github.copilot
@@ -60,7 +87,6 @@
             pkgs.defaultbrowser
             pkgs.oh-my-zsh
             pkgs.zsh-autosuggestions
-            pkgs.fabric-ai
             pkgs.vagrant
             pkgs.aria2
             pkgs.lilypond-with-fonts
@@ -70,38 +96,46 @@
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
-            git clone https://github.com/rjt11221/screensavers.git "$HOME/screensavers"
+            if [ ! -d "$HOME/screensavers" ]; then
+              git clone https://github.com/rjt11221/screensavers.git "$HOME/screensavers"
+            fi
           '';
 
-          system.activationScripts.applicationsNX.text = let
-                  env = pkgs.buildEnv {
-                    name = "system-applications";
-                    paths = config.environment.systemPackages;
-                    pathsToLink = "/Applications";
-                  };
-                in
-                  pkgs.lib.mkForce ''
-                    rm -rf /Applications/Nix\ Apps
-                    mkdir -p /Applications/Nix\ Apps
-                    find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
-                    while read src; do
-                      app_name=$(basename "$src")
-                      ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
-                    done
-                  '';
+          # Consolidated applications script
+          system.activationScripts.applications.text = let
+            env = pkgs.buildEnv {
+              name = "system-applications";
+              paths = config.environment.systemPackages;
+              pathsToLink = "/Applications";
+            };
+          in
+            ''
+              echo "setting up /Applications/Nix Apps..."
+              rm -rf /Applications/Nix\ Apps
+              mkdir -p /Applications/Nix\ Apps
+              find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
+              while read src; do
+                app_name=$(basename "$src")
+                ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
+              done
+            '';
 
           system.activationScripts.installPinokio.text = ''
-            curl -L https://github.com/pinokiocomputer/pinokio/releases/download/2.15.1/Pinokio-2.15.1-arm64.dmg -o /tmp/Pinokio-2.15.1-arm64.dmg
-            hdiutil attach /tmp/Pinokio-2.15.1-arm64.dmg
-            sudo cp -R /Volumes/Pinokio/Pinokio.app /Applications/
-            hdiutil detach /Volumes/Pinokio
-            rm /tmp/Pinokio-2.15.1-arm64.dmg
+            if [ ! -d "/Applications/Pinokio.app" ]; then
+              curl -L https://github.com/pinokiocomputer/pinokio/releases/download/2.15.1/Pinokio-2.15.1-arm64.dmg -o /tmp/Pinokio-2.15.1-arm64.dmg
+              hdiutil attach /tmp/Pinokio-2.15.1-arm64.dmg
+              sudo cp -R /Volumes/Pinokio/Pinokio.app /Applications/
+              hdiutil detach /Volumes/Pinokio
+              rm /tmp/Pinokio-2.15.1-arm64.dmg
+            fi
           '';
 
           system.activationScripts.installKekaHelper.text = ''
-            sudo curl -L https://d.keka.io/helper -o /Applications/Keka\ Helper.zip
-            sudo unzip /Applications/Keka\ Helper.zip -d /Applications/Keka\ Helper.app
-            sudo rm /Applications/Keka\ Helper.zip
+            if [ ! -d "/Applications/Keka Helper.app" ]; then
+              sudo curl -L https://d.keka.io/helper -o /Applications/Keka\ Helper.zip
+              sudo unzip /Applications/Keka\ Helper.zip -d /Applications/Keka\ Helper.app
+              sudo rm /Applications/Keka\ Helper.zip
+            fi
           '';
 
           system.activationScripts.installGPTMe.text = ''
@@ -172,33 +206,19 @@
           };
 
           services.nix-daemon.enable = true;
-          nix.settings.experimental-features = "nix-command flakes";
 
+          # Enhanced display settings
           system.activationScripts.displaySettings.text = ''
+            # Enable HiDPI display modes
             /usr/bin/defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
+            # Set dark mode
             /usr/bin/defaults write com.apple.systempreferences AppleInterfaceStyle -string "Dark"
-            /usr/bin/defaults write com.apple.windowserver DisplayResolution -int 1680x1050
+            # Set display resolution if needed
+            /usr/bin/defaults write com.apple.windowserver DisplayResolution -int 1680x1050 || true
           '';
 
           system.configurationRevision = self.rev or self.dirtyRev or null;
           system.stateVersion = 5;
-
-          system.activationScripts.applicationsHB.text = let
-                  env = pkgs.buildEnv {
-                    name = "system-applications";
-                    paths = config.environment.systemPackages;
-                    pathsToLink = "/Applications";
-                  };
-                in
-                  pkgs.lib.mkForce ''
-                    rm -rf /Applications/Nix\ Apps
-                    mkdir -p /Applications/Nix\ Apps
-                    find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
-                    while read src; do
-                      app_name=$(basename "$src")
-                      ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
-                    done
-                  '';
         })
 
         {

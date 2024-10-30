@@ -88,10 +88,9 @@ build_iso() {
 
 install_nix_darwin() {
     MAC_FLAKE_PATH="$HOME/.nix/Mac#rohan"
-    check_and_prompt_install_nix
-    echo "Switching Nix Darwin configuration..."
     nix-collect-garbage
     nix-store --gc
+    echo "Switching Nix Darwin configuration..."
     nix run nix-darwin -- switch --flake "$MAC_FLAKE_PATH" --verbose --impure
     if [ $? -ne 0 ]; then
         echo "Nix Darwin configuration switch failed."
