@@ -90,7 +90,9 @@ install_nix_darwin() {
     MAC_FLAKE_PATH="$HOME/.nix/Mac#rohan"
     check_and_prompt_install_nix
     echo "Switching Nix Darwin configuration..."
-    nix run nix-darwin  -- switch --flake "$MAC_FLAKE_PATH" --impure --show-trace
+    nix-collect-garbage
+    nix-store --gc
+    nix run nix-darwin -- switch --flake "$MAC_FLAKE_PATH" --verbose --impure
     if [ $? -ne 0 ]; then
         echo "Nix Darwin configuration switch failed."
         exit 1
@@ -108,6 +110,7 @@ case $CHOICE in
         build_iso
         ;;
     2)
+        check_and_prompt_install_nix
         install_nix_darwin
         ;;
     *)
