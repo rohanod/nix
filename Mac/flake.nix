@@ -185,6 +185,7 @@
             ];
             brews = [
               "docker-compose"
+              "create-dmg"
             ];
             masApps = {
               "Keka" = 470158793;
