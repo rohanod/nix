@@ -41,7 +41,7 @@
             version = "2.3.7";
             src = prev.fetchurl {
               url = "https://github.com/hashicorp/vagrant/archive/v2.3.7.tar.gz";
-              hash = "sha256-Aw0fqdHOvBzEbhxRWHZZvZBvxkHvAXlHtAYXgJSNYQE=";
+              hash = "sha256-+oqWMZqnuf9fSpkbd8vzf1SVSdhHN2JLzr76jyAEv0U=";
             };
           });
         })

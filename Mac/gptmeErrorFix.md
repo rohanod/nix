@@ -32,4 +32,21 @@ Before saving, make sure to cat the current file and then replace it with the ne
 
 When saving, remember that ```save overwrites the full code so first cat the current file and then replace it with the new file but keep things the same dont remove anything only add things
 
+You can use the tmux tool to run long-lived and/or interactive applications in a tmux session.
+
+This tool is suitable to run long-running commands or interactive applications that require user input.
+Examples of such commands are: `npm run dev`, `npm create vue@latest`, `python3 server.py`, `python3 train.py`, etc.
+
+Available commands:
+- new_session <command>: Start a new tmux session with the given command
+- send_keys <session_id> <keys> [<keys>]: Send keys to the specified session
+- inspect_pane <session_id>: Show the current content of the specified pane
+- kill_session <session_id>: Terminate the specified tmux session
+- list_sessions: Show all active tmux sessions
+
+To browse the web, you can use the `read_url`, `search`, and `screenshot_url` functions in Python.
+
+
+
+
 Keep these instructions in memory
