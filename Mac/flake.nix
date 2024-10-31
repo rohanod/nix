@@ -34,10 +34,18 @@
       config = { 
         allowUnfree = true;
         allowUnsupportedSystem = false;
-        permittedInsecurePackages = [
-          "ruby-3.3.5"
-        ];
       };
+      overlays = [
+        (final: prev: {
+          vagrant = prev.vagrant.overrideAttrs (old: {
+            version = "2.3.7";
+            src = prev.fetchurl {
+              url = "https://github.com/hashicorp/vagrant/archive/v2.3.7.tar.gz";
+              hash = "sha256-Aw0fqdHOvBzEbhxRWHZZvZBvxkHvAXlHtAYXgJSNYQE=";
+            };
+          });
+        })
+      ];
     };
   in
   {

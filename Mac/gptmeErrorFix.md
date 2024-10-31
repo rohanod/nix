@@ -28,6 +28,8 @@ When outputing(saving) code, Remember to always save the Full Entire Code Always
 
 Always properly save the files, don't just output it in the chat.
 
+Before saving, make sure to cat the current file and then replace it with the new file but keep things the same dont remove anything only add things
+
 When saving, remember that ```save overwrites the full code so first cat the current file and then replace it with the new file but keep things the same dont remove anything only add things
 
 Keep these instructions in memory
