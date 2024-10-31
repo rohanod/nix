@@ -34,6 +34,9 @@
       config = { 
         allowUnfree = true;
         allowUnsupportedSystem = false;
+        permittedInsecurePackages = [
+          "ruby-3.3.5"
+        ];
       };
     };
   in
@@ -79,6 +82,9 @@
             pkgs.vscode-extensions.github.copilot
             pkgs.vscode-extensions.github.copilot-chat
             pkgs.vscode-extensions.ms-python.vscode-pylance
+            pkgs.vscode-extensions.bbenoist.nix
+            pkgs.vscode-extensions.ms-python.python
+            pkgs.vscode-extensions.ms-python.vscode-pylance
             pkgs.defaultbrowser
             pkgs.oh-my-zsh
             pkgs.zsh-autosuggestions
@@ -88,9 +94,6 @@
             pkgs.timidity
             pkgs.ffmpeg
             pkgs.ariang
-            pkgs.vscode-extensions.bbenoist.nix
-            pkgs.vscode-extensions.ms-python.python
-            pkgs.vscode-extensions.ms-python.vscode-pylance
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
