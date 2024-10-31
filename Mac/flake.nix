@@ -41,8 +41,15 @@
             version = "2.3.7";
             src = prev.fetchurl {
               url = "https://github.com/hashicorp/vagrant/archive/v2.3.7.tar.gz";
-              hash = "sha256-+oqWMZqnuf9fSpkbd8vzf1SVSdhHN2JLzr76jyAEv0U=";
+              hash = "sha256-Aw0fqdHOvBzEbhxRWHZZvZBvxkHvAXlHtAYXgJSNYQE=";
             };
+            buildInputs = (old.buildInputs or []) ++ [ prev.grpc ];
+            patches = (old.patches or []) ++ [
+              (prev.fetchpatch {
+                url = "https://raw.githubusercontent.com/NixOS/nixpkgs/master/pkgs/development/tools/vagrant/fix-ruby-3.3.patch";
+                hash = "sha256-YourHashHere=";  # We'll get this from the error
+              })
+            ];
           });
         })
       ];
@@ -63,8 +70,8 @@
             experimental-features = [ "nix-command" "flakes" ];
             auto-optimise-store = true;
             trusted-users = [ "@admin" "rohan" ];
-            max-jobs = 20;
-            cores = 8;
+            max-jobs = 15;
+            cores = 7;
             # Add substituters for faster downloads
             substituters = [
               "https://cache.nixos.org"
