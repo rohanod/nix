@@ -3,7 +3,7 @@
 
   inputs = {
     # Use a specific commit hash for better stability
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     
     nix-darwin = {
       url = "github:LnL7/nix-darwin/master";
@@ -68,7 +68,6 @@
           environment.systemPackages = [
             pkgs.tmux
             pkgs.mkalias
-            pkgs.python311Packages.ansible-core
             pkgs.asciiquarium
             pkgs.curl
             pkgs.git
