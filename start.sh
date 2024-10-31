@@ -91,7 +91,7 @@ install_nix_darwin() {
     # nix-collect-garbage
     # nix-store --gc
     echo "Switching Nix Darwin configuration..."
-    nix run nix-darwin -- switch --flake "$MAC_FLAKE_PATH" --verbose --impure --enable-experimental-features "nix-command flakes" --max-jobs 12 --cores 8
+    nix run nix-darwin --enable-experimental-features "nix-command flakes" -- switch --flake "$MAC_FLAKE_PATH" --verbose --impure --max-jobs 12 --cores 8
     if [ $? -ne 0 ]; then
         echo "Nix Darwin configuration switch failed."
         exit 1
