@@ -63,8 +63,8 @@
             experimental-features = [ "nix-command" "flakes" ];
             auto-optimise-store = true;
             trusted-users = [ "@admin" "rohan" ];
-            max-jobs = "auto";
-            cores = 0;
+            max-jobs = 15;
+            cores = 6;
             # Add substituters for faster downloads
             substituters = [
               "https://cache.nixos.org"
