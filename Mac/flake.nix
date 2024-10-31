@@ -75,12 +75,10 @@
             pkgs.pipx
             pkgs.go
             pkgs.alttab
-            pkgs.spotify
             pkgs.vscode
             pkgs.vscode-extensions.github.copilot
             pkgs.vscode-extensions.github.copilot-chat
             pkgs.vscode-extensions.ms-python.vscode-pylance
-            pkgs.raycast
             pkgs.defaultbrowser
             pkgs.oh-my-zsh
             pkgs.zsh-autosuggestions
@@ -90,6 +88,9 @@
             pkgs.timidity
             pkgs.ffmpeg
             pkgs.ariang
+            pkgs.vscode-extensions.bbenoist.nix
+            pkgs.vscode-extensions.ms-python.python
+            pkgs.vscode-extensions.ms-python.vscode-pylance
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
@@ -183,6 +184,8 @@
               "google-chrome"
               "twingate"
               "parsec"
+              "raycast"
+              "spotify"
             ];
             brews = [
               "docker-compose"
