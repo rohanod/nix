@@ -41,7 +41,9 @@
     darwinConfigurations.rohan = nix-darwin.lib.darwinSystem {
       inherit system;
 
-      specialArgs = { inherit pkgs; };
+      specialArgs = { 
+        inherit pkgs;
+      };
 
       modules = [
         nix-homebrew.darwinModules.nix-homebrew
@@ -53,7 +55,7 @@
             auto-optimise-store = true;
             trusted-users = [ "@admin" "rohan" ];
             max-jobs = 15;
-            cores = 7;
+            cores = 8;
             # Add substituters for faster downloads
             substituters = [
               "https://cache.nixos.org"
