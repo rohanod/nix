@@ -185,7 +185,7 @@
               "keyclu"
               "miniconda"
               "shottr"
-              "mochi-diffusion"
+              # "mochi-diffusion"
               "mounty"
               "vmware-fusion"
               "tor-browser"
@@ -213,8 +213,6 @@
               "Diffusers" = 1666309574;
               "Dropover" = 1355679052;
               "Hyperduck" = 6444667067;
-              "Tapo" = 1472718009;
-              "Deco" = 1186159417;
               "Draw Things" = 6444050820;
               "Localsend" = 1661733229;
               "Velja" = 1607635845;
