@@ -104,6 +104,7 @@
             pkgs.timidity
             pkgs.ffmpeg
             pkgs.ariang
+            pkgs.firefox-unwrapped
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
