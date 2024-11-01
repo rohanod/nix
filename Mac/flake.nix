@@ -3,7 +3,7 @@
 
   inputs = {
     # Use a specific commit hash for better stability
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/24.05";
     
     nix-darwin = {
       url = "github:LnL7/nix-darwin/master";
@@ -35,24 +35,6 @@
         allowUnfree = true;
         allowUnsupportedSystem = false;
       };
-      overlays = [
-        (final: prev: {
-          vagrant = prev.vagrant.overrideAttrs (old: {
-            version = "2.3.7";
-            src = prev.fetchurl {
-              url = "https://github.com/hashicorp/vagrant/archive/v2.3.7.tar.gz";
-              hash = "sha256-Aw0fqdHOvBzEbhxRWHZZvZBvxkHvAXlHtAYXgJSNYQE=";
-            };
-            buildInputs = (old.buildInputs or []) ++ [ prev.grpc ];
-            patches = (old.patches or []) ++ [
-              (prev.fetchpatch {
-                url = "https://raw.githubusercontent.com/NixOS/nixpkgs/master/pkgs/development/tools/vagrant/fix-ruby-3.3.patch";
-                hash = "sha256-YourHashHere=";  # We'll get this from the error
-              })
-            ];
-          });
-        })
-      ];
     };
   in
   {
@@ -103,7 +85,7 @@
             pkgs.defaultbrowser
             pkgs.oh-my-zsh
             pkgs.zsh-autosuggestions
-            pkgs.vagrant
+            # pkgs.vagrant
             pkgs.aria2
             pkgs.lilypond-with-fonts
             pkgs.timidity
@@ -204,6 +186,7 @@
               "parsec"
               "raycast"
               "spotify"
+              "vagrant"
             ];
             brews = [
               "docker-compose"
