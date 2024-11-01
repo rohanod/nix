@@ -49,14 +49,25 @@
         nix-homebrew.darwinModules.nix-homebrew
 
         ({ pkgs, config, lib, ... }: {
-          # Enhanced Nix settings
+          nix-homebrew = {
+            enable = true;
+            enableRosetta = true;
+            user = "rohan";
+
+            taps = {
+              "homebrew/homebrew-core" = homebrew-core;
+              "homebrew/homebrew-cask" = homebrew-cask;
+            };
+
+            mutableTaps = false;
+          };
+
           nix.settings = {
             experimental-features = [ "nix-command" "flakes" ];
             auto-optimise-store = true;
             trusted-users = [ "@admin" "rohan" ];
             max-jobs = 15;
             cores = 8;
-            # Add substituters for faster downloads
             substituters = [
               "https://cache.nixos.org"
               "https://nix-community.cachix.org"
@@ -145,7 +156,7 @@
           system.activationScripts.setDefaultBrowser.text = ''
             osascript -e '
             on run
-                do shell script "defaultbrowser velja"
+                do shell script "defaultbrowser veli"
                 try
                     tell application "System Events"
                         tell application process "CoreServicesUIAgent"
@@ -184,8 +195,6 @@
               "twingate"
               "sigmaos"
               "google-chrome"
-              "twingate"
-              "parsec"
               "raycast"
               "spotify"
               "vagrant"
@@ -217,33 +226,14 @@
 
           # Enhanced display settings
           system.activationScripts.displaySettings.text = ''
-            # Enable HiDPI display modes
             /usr/bin/defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
-            # Set dark mode
             /usr/bin/defaults write com.apple.systempreferences AppleInterfaceStyle -string "Dark"
-            # Set display resolution if needed
             /usr/bin/defaults write com.apple.windowserver DisplayResolution -int 1680x1050 || true
           '';
 
           system.configurationRevision = self.rev or self.dirtyRev or null;
           system.stateVersion = 5;
         })
-
-        {
-          nix-homebrew = {
-            enable = true;
-            enableRosetta = true;
-            user = "rohan";
-            prefix = "${config.home.homeDirectory}/.homebrew";
-
-            taps = {
-              "homebrew/homebrew-core" = homebrew-core;
-              "homebrew/homebrew-cask" = homebrew-cask;
-            };
-
-            mutableTaps = false;
-          };
-        }
       ];
     };
 
