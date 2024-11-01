@@ -1,14 +1,15 @@
 #!/bin/bash
 
+# Process command-line arguments
 for arg in "$@"
 do
     case $arg in
-        --choice=*)
-        CHOICE="${arg#*=}"
-        shift
-        ;;
         --install-nix=*)
         INSTALL_NIX="${arg#*=}"
+        shift
+        ;;
+        --choice=*)
+        CHOICE="${arg#*=}"
         shift
         ;;
         *)
@@ -18,47 +19,22 @@ do
     esac
 done
 
+# Function to check and prompt for Nix installation if missing
 check_and_prompt_install_nix() {
     if ! command -v nix &> /dev/null
     then
         if [[ "$INSTALL_NIX" == "1" ]]; then
             install_choice="y"
         else
-            read -p "Do you want to install Nix? (y/n): " install_choice
+            read -p "Nix is not installed. Do you want to install it? (y/n): " install_choice
         fi
 
         if [[ "$install_choice" == "y" || "$install_choice" == "Y" ]]; then
-            if [ -e /etc/bash.bashrc.backup-before-nix ] || [ -e /etc/zshrc.backup-before-nix ] || [ -e /etc/bashrc.backup-before-nix ]; then
-                [ -e /etc/bash.bashrc.backup-before-nix ] && sudo mv /etc/bash.bashrc.backup-before-nix /etc/bash.bashrc > /dev/null 2>&1
-                [ -e /etc/zshrc.backup-before-nix ] && sudo mv /etc/zshrc.backup-before-nix /etc/zshrc > /dev/null 2>&1
-                [ -e /etc/bashrc.backup-before-nix ] && sudo mv /etc/bashrc.backup-before-nix /etc/bashrc > /dev/null 2>&1
-
-                sudo sed -i '' '/# Nix/,/# End Nix/d' /etc/zshrc
-                sudo sed -i '' '/# Nix/,/# End Nix/d' /etc/bashrc
-                sudo sed -i '' '/# Nix/,/# End Nix/d' /etc/bash.bashrc
-
-                sudo launchctl unload /Library/LaunchDaemons/org.nixos.nix-daemon.plist
-                sudo rm /Library/LaunchDaemons/org.nixos.nix-daemon.plist
-                sudo launchctl unload /Library/LaunchDaemons/org.nixos.darwin-store.plist
-                sudo rm /Library/LaunchDaemons/org.nixos.darwin-store.plist
-
-                sudo dscl . -delete /Groups/nixbld
-                for u in $(sudo dscl . -list /Users | grep _nixbld); do sudo dscl . -delete /Users/$u; done
-
-                sudo vifs -c 'g/\/nix/d'
-
-                sudo sed -i '' '/nix/d' /etc/synthetic.conf
-                [ ! -s /etc/synthetic.conf ] && sudo rm /etc/synthetic.conf
-
-                sudo rm -rf /etc/nix /var/root/.nix-profile /var/root/.nix-defexpr /var/root/.nix-channels ~/.nix-profile ~/.nix-defexpr ~/.nix-channels ~/.cache/nix
-
-                sudo diskutil apfs deleteVolume /nix
-                sudo nix-collect-garbage -d
-            fi
-
+            echo "Installing Nix..."
             curl -L https://nixos.org/nix/install | sh 
             zsh source ~/.zshrc
             if [ $? -ne 0 ]; then
+                echo "Nix installation failed."
                 exit 1
             fi
             echo "Nix installation completed."
@@ -69,6 +45,7 @@ check_and_prompt_install_nix() {
     fi
 }
 
+# Function to build ISO
 build_iso() {
     LINUX_FLAKE_PATH="$HOME/.nix/Linux#iso"
     echo "Building ISO..."
@@ -86,10 +63,9 @@ build_iso() {
     echo "ISO build completed successfully."
 }
 
+# Function to install Nix Darwin configuration
 install_nix_darwin() {
     MAC_FLAKE_PATH="$HOME/.nix/Mac#rohan"
-    # nix-collect-garbage
-    # nix-store --gc
     echo "Switching Nix Darwin configuration..."
     nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch --flake "$MAC_FLAKE_PATH" --verbose --impure --max-jobs 20 --cores 7
     if [ $? -ne 0 ]; then
@@ -99,10 +75,36 @@ install_nix_darwin() {
     echo "Nix Darwin configuration switch completed successfully."
 }
 
+# Function to rebuild Nix Darwin configuration
+rebuild_nix_darwin() {
+    MAC_FLAKE_PATH="$HOME/.nix/Mac#rohan"
+    echo "Rebuilding Nix Darwin configuration..."
+
+    if ! command -v darwin-rebuild &> /dev/null || ! command -v nix-darwin &> /dev/null; then
+        read -p "Required tools for rebuilding are missing. Do you want to install Nix and Nix Darwin? (y/n): " install_darwin
+        if [[ "$install_darwin" == "y" || "$install_darwin" == "Y" ]]; then
+            check_and_prompt_install_nix
+            install_nix_darwin
+        else
+            echo "Rebuild aborted due to missing dependencies."
+            exit 1
+        fi
+    fi
+
+    darwin-rebuild switch --flake "$MAC_FLAKE_PATH"
+    if [ $? -ne 0 ]; then
+        echo "Nix Darwin configuration rebuild failed."
+        exit 1
+    fi
+    echo "Nix Darwin configuration rebuild completed successfully."
+}
+
+# Prompt for choice if not provided
 if [[ -z "$CHOICE" ]]; then
-    read -p "Enter your choice (1 or 2): " CHOICE
+    read -p "Enter your choice (1: Build ISO, 2: Install Nix Darwin, 3: Rebuild Nix Darwin): " CHOICE
 fi
 
+# Main logic for choices
 case $CHOICE in
     1)
         check_and_prompt_install_nix
@@ -111,6 +113,9 @@ case $CHOICE in
     2)
         check_and_prompt_install_nix
         install_nix_darwin
+        ;;
+    3)
+        rebuild_nix_darwin
         ;;
     *)
         echo "Invalid choice. Exiting."

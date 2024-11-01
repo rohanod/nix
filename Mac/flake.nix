@@ -3,7 +3,7 @@
 
   inputs = {
     # Use a specific commit hash for better stability
-    nixpkgs.url = "github:nixos/nixpkgs/24.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     
     nix-darwin = {
       url = "github:LnL7/nix-darwin/master";
