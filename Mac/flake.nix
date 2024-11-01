@@ -234,6 +234,7 @@
             enable = true;
             enableRosetta = true;
             user = "rohan";
+            prefix = "${config.home.homeDirectory}/.homebrew";
 
             taps = {
               "homebrew/homebrew-core" = homebrew-core;
