@@ -2,11 +2,10 @@
   description = "Rohan's Customized Darwin Configuration";
 
   inputs = {
-    # Use a specific commit hash for better stability
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    
+
     nix-darwin = {
-      url = "github:LnL7/nix-darwin/master";
+      url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -14,11 +13,12 @@
       url = "github:zhaofengli-wip/nix-homebrew";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
+
     homebrew-core = {
       url = "github:Homebrew/homebrew-core";
       flake = false;
     };
+
     homebrew-cask = {
       url = "github:Homebrew/homebrew-cask";
       flake = false;
@@ -31,7 +31,7 @@
 
     pkgs = import nixpkgs {
       inherit system;
-      config = { 
+      config = {
         allowUnfree = true;
         allowUnsupportedSystem = false;
       };
@@ -41,7 +41,7 @@
     darwinConfigurations.rohan = nix-darwin.lib.darwinSystem {
       inherit system;
 
-      specialArgs = { 
+      specialArgs = {
         inherit pkgs;
       };
 
@@ -88,22 +88,20 @@
             pkgs.pipx
             pkgs.go
             pkgs.alttab
-            pkgs.vscode
             pkgs.vscode-extensions.github.copilot
             pkgs.vscode-extensions.github.copilot-chat
             pkgs.vscode-extensions.ms-python.vscode-pylance
             pkgs.vscode-extensions.bbenoist.nix
             pkgs.vscode-extensions.ms-python.python
-            pkgs.vscode-extensions.ms-python.vscode-pylance
             pkgs.defaultbrowser
             pkgs.oh-my-zsh
             pkgs.zsh-autosuggestions
-            # pkgs.vagrant
             pkgs.aria2
             pkgs.lilypond-with-fonts
             pkgs.timidity
             pkgs.ffmpeg
             pkgs.ariang
+            pkgs.nixd
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
@@ -112,26 +110,24 @@
             fi
           '';
 
-          # Consolidated applications script
           system.activationScripts.applications.text = let
-                  env = pkgs.buildEnv {
-                    name = "system-applications";
-                    paths = config.environment.systemPackages;
-                    pathsToLink = "/Applications";
-                  };
-                in
-                  pkgs.lib.mkForce ''
-                    # Set up applications.
-                    echo "setting up /Applications..." >&2
-                    rm -rf /Applications/Nix\ Apps
-                    mkdir -p /Applications/Nix\ Apps
-                    find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
-                    while read src; do
-                      app_name=$(basename "$src")
-                      echo "copying $src" >&2
-                      ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
-                    done
-                  '';
+            env = pkgs.buildEnv {
+              name = "system-applications";
+              paths = config.environment.systemPackages;
+              pathsToLink = "/Applications";
+            };
+          in
+            pkgs.lib.mkForce ''
+              echo "setting up /Applications..." >&2
+              rm -rf /Applications/Nix\ Apps
+              mkdir -p /Applications/Nix\ Apps
+              find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
+              while read src; do
+                app_name=$(basename "$src")
+                echo "copying $src" >&2
+                ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
+              done
+            '';
 
           system.activationScripts.installPinokio.text = ''
             if [ ! -d "/Applications/Pinokio.app" ]; then
@@ -168,63 +164,14 @@
                                 end tell
                             end tell
                         end tell
-                    end tell
-                end try
-            end run
+                    end try
+                end run
             '
           '';
 
-          homebrew = {
-            enable = true;
-            casks = [ 
-              "brave-browser"
-              "aerial"
-              "docker"
-              "chatgpt"
-              "hovrly"
-              "keyclu"
-              "miniconda"
-              "shottr"
-              # "mochi-diffusion"
-              "mounty"
-              "vmware-fusion"
-              "tor-browser"
-              "raspberry-pi-imager"
-              "ultimaker-cura"
-              "obs"
-              "zed"
-              "parsec"
-              "twingate"
-              "sigmaos"
-              "google-chrome"
-              "raycast"
-              "spotify"
-              "vagrant"
-            ];
-            brews = [
-              "docker-compose"
-              "create-dmg"
-            ];
-            masApps = {
-              "Keka" = 470158793;
-              "Surfshark VPN" = 1437809329;
-              "Speediness" = 1596706466;
-              "Online Check" = 6504709660;
-              "Diffusers" = 1666309574;
-              "Dropover" = 1355679052;
-              "Hyperduck" = 6444667067;
-              "Draw Things" = 6444050820;
-              "Localsend" = 1661733229;
-              "Velja" = 1607635845;
-              "Whatsapp" = 310633997;
-              "Crystal Fetch" = 6454431289;
-            };
-            onActivation.cleanup = "zap";
-          };
-
           services.nix-daemon.enable = true;
+          nix.package = pkgs.nix;
 
-          # Enhanced display settings
           system.activationScripts.displaySettings.text = ''
             /usr/bin/defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
             /usr/bin/defaults write com.apple.systempreferences AppleInterfaceStyle -string "Dark"
