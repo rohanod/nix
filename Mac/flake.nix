@@ -100,6 +100,7 @@
             pkgs.lilypond-with-fonts
             pkgs.timidity
             pkgs.ffmpeg
+            pkgs.xmrig
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
@@ -170,6 +171,8 @@
 
           homebrew = {
             enable = true;
+            prefix = "${lib.getEnv "HOME"}/.homebrew";
+            user = "rohan";
             casks = [ 
               "brave-browser"
               "aerial"
