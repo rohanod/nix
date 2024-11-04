@@ -65,8 +65,8 @@
             experimental-features = [ "nix-command" "flakes" ];
             auto-optimise-store = true;
             trusted-users = [ "@admin" "rohan" ];
-            max-jobs = 15;
-            cores = 8;
+            max-jobs = 20;
+            cores = 7;
             substituters = [
               "https://cache.nixos.org"
               "https://nix-community.cachix.org"
