@@ -3,9 +3,9 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
+    
     nix-darwin = {
-      url = "github:LnL7/nix-darwin";
+      url = "github:LnL7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -13,12 +13,11 @@
       url = "github:zhaofengli-wip/nix-homebrew";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
+    
     homebrew-core = {
       url = "github:Homebrew/homebrew-core";
       flake = false;
     };
-
     homebrew-cask = {
       url = "github:Homebrew/homebrew-cask";
       flake = false;
@@ -31,7 +30,7 @@
 
     pkgs = import nixpkgs {
       inherit system;
-      config = {
+      config = { 
         allowUnfree = true;
         allowUnsupportedSystem = false;
       };
@@ -41,7 +40,7 @@
     darwinConfigurations.rohan = nix-darwin.lib.darwinSystem {
       inherit system;
 
-      specialArgs = {
+      specialArgs = { 
         inherit pkgs;
       };
 
@@ -88,6 +87,7 @@
             pkgs.pipx
             pkgs.go
             pkgs.alttab
+            pkgs.vscode
             pkgs.vscode-extensions.github.copilot
             pkgs.vscode-extensions.github.copilot-chat
             pkgs.vscode-extensions.ms-python.vscode-pylance
@@ -101,7 +101,6 @@
             pkgs.timidity
             pkgs.ffmpeg
             pkgs.ariang
-            pkgs.nixd
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
@@ -164,13 +163,60 @@
                                 end tell
                             end tell
                         end tell
-                    end try
-                end run
+                    end tell
+                end try
+            end run
             '
           '';
 
+          homebrew = {
+            enable = true;
+            casks = [ 
+              "brave-browser"
+              "aerial"
+              "docker"
+              "chatgpt"
+              "hovrly"
+              "keyclu"
+              "miniconda"
+              "shottr"
+              "mounty"
+              "vmware-fusion"
+              "tor-browser"
+              "raspberry-pi-imager"
+              "ultimaker-cura"
+              "obs"
+              "zed"
+              "parsec"
+              "twingate"
+              "sigmaos"
+              "google-chrome"
+              "raycast"
+              "spotify"
+              "vagrant"
+            ];
+            brews = [
+              "docker-compose"
+              "create-dmg"
+            ];
+            masApps = {
+              "Keka" = 470158793;
+              "Surfshark VPN" = 1437809329;
+              "Speediness" = 1596706466;
+              "Online Check" = 6504709660;
+              "Diffusers" = 1666309574;
+              "Dropover" = 1355679052;
+              "Hyperduck" = 6444667067;
+              "Draw Things" = 6444050820;
+              "Localsend" = 1661733229;
+              "Velja" = 1607635845;
+              "Whatsapp" = 310633997;
+              "Crystal Fetch" = 6454431289;
+            };
+            onActivation.cleanup = "zap";
+          };
+
           services.nix-daemon.enable = true;
-          nix.package = pkgs.nix;
 
           system.activationScripts.displaySettings.text = ''
             /usr/bin/defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
