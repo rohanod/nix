@@ -100,7 +100,6 @@
             pkgs.lilypond-with-fonts
             pkgs.timidity
             pkgs.ffmpeg
-            pkgs.ariang
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
@@ -193,6 +192,7 @@
               "google-chrome"
               "raycast"
               "spotify"
+              "ariang"
               "vagrant"
             ];
             brews = [
