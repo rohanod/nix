@@ -198,6 +198,10 @@
             brews = [
               "docker-compose"
               "create-dmg"
+              "cabextract"
+              "wimlib"
+              "cdrtools"
+              "sidneys/homebrew/chntpw"
             ];
             masApps = {
               "Keka" = 470158793;
