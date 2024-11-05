@@ -48,10 +48,14 @@
         nix-homebrew.darwinModules.nix-homebrew
 
         ({ pkgs, config, lib, ... }: {
+          users.users.rohan = {
+            home = "/Users/rohan";
+          };
           nix-homebrew = {
             enable = true;
             enableRosetta = true;
             user = "rohan";
+            prefix = "${config.users.users.rohan.home}/.homebrew";
 
             taps = {
               "homebrew/homebrew-core" = homebrew-core;
@@ -163,16 +167,13 @@
                                 end tell
                             end tell
                         end tell
-                    end tell
-                end try
-            end run
-            '
+                    end try
+                end run
+                '
           '';
 
           homebrew = {
             enable = true;
-            prefix = "${lib.getEnv "HOME"}/.homebrew";
-            user = "rohan";
             casks = [ 
               "brave-browser"
               "aerial"
