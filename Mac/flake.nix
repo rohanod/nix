@@ -206,7 +206,6 @@
               "cabextract"
               "wimlib"
               "cdrtools"
-              "sidneys/homebrew/chntpw"
             ];
             masApps = {
               "Keka" = 470158793;
