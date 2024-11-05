@@ -55,7 +55,6 @@
             enable = true;
             enableRosetta = true;
             user = "rohan";
-            prefix = "${config.users.users.rohan.home}/.homebrew";
 
             taps = {
               "homebrew/homebrew-core" = homebrew-core;
@@ -105,6 +104,8 @@
             pkgs.timidity
             pkgs.ffmpeg
             pkgs.xmrig
+            pkgs.toybox
+            pkgs.nixd
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
