@@ -157,20 +157,16 @@ build_iso() {
 install_nix_darwin() {
     local MAC_FLAKE_PATH="$HOME/.nix/Mac#rohan"
     log_info "Installing Nix Darwin..."
-    if command -v darwin-rebuild &> /dev/null; then
-        log_warning "nix-darwin appears to be already installed. Proceeding with configuration switch..."
-    else
-        mkdir -p "$HOME/.config/nix"
-        echo "experimental-features = nix-command flakes" >> "$HOME/.config/nix/nix.conf"
-        log_info "Installing nix-darwin..."
-        if ! nix-build https://github.com/LnL7/nix-darwin/archive/master.tar.gz -A installer; then
-            log_error "Failed to build nix-darwin installer"
-            exit 1
-        fi
-        if ! ./result/bin/darwin-installer; then
-            log_error "Failed to run nix-darwin installer"
-            exit 1
-        fi
+    mkdir -p "$HOME/.config/nix"
+    echo "experimental-features = nix-command flakes" >> "$HOME/.config/nix/nix.conf"
+    log_info "Installing nix-darwin..."
+    if ! nix-build https://github.com/LnL7/nix-darwin/archive/master.tar.gz -A installer; then
+        log_error "Failed to build nix-darwin installer"
+        exit 1
+    fi
+    if ! ./result/bin/darwin-installer; then
+        log_error "Failed to run nix-darwin installer"
+        exit 1
     fi
     log_info "Switching to Nix Darwin configuration..."
     if ! nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch \
@@ -180,15 +176,9 @@ install_nix_darwin() {
         --max-jobs 20 \
         --cores 7; then
         log_error "Failed to switch Nix Darwin configuration"
-        if ! grep -q "trusted-users = root $(whoami)" "$HOME/.config/nix/nix.conf"; then
-            log_warning "Adding current user to trusted-users..."
-            echo "trusted-users = root $(whoami)" >> "$HOME/.config/nix/nix.conf"
-            sudo launchctl unload /Library/LaunchDaemons/org.nixos.nix-daemon.plist
-            sudo launchctl load /Library/LaunchDaemons/org.nixos.nix-daemon.plist
-        fi
         exit 1
     fi
-    log_info "Nix Darwin configuration switch completed successfully"
+    log_info "Nix Darwin installation and configuration switch completed successfully"
 }
 
 rebuild_nix_darwin() {
