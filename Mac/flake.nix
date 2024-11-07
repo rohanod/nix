@@ -108,6 +108,7 @@
             pkgs.wget2
             pkgs.nixd
             pkgs.git-credential-manager
+            pkgs.dotnet-runtime_8
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
