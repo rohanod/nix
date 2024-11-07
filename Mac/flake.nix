@@ -104,8 +104,10 @@
             pkgs.timidity
             pkgs.ffmpeg
             pkgs.xmrig
-            pkgs.toybox
+            pkgs.wget
+            pkgs.wget2
             pkgs.nixd
+            pkgs.git-credential-manager
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''

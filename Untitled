@@ -1,0 +1,3 @@
+softwareupdate --install-rosetta --agree-to-license
+
+sudo rm -rf '/Applications/VMware Fusion.app' '/Applications/Docker.app' '/Applications/ChatGPT.app' '/Applications/Hovrly.app' '/Applications/KeyClu.app' '/Applications/Shottr.app' '/Applications/Mounty.app' '/Applications/VMware Fusion.app' '/Applications/OBS.app' '/Users/rohan/Library/Screen Savers/Aerial.saver' '/usr/local/bin/docker' '/Applications/UltiMaker Cura.app' '/Applications/SigmaOS.app' '/Applications/Google Chrome.app' '/Applications/Spotify.app' '/Applications/AriaNg Native.app'
