@@ -139,7 +139,7 @@ check_and_prompt_install_nix() {
 }
 
 build_iso() {
-    LINUX_FLAKE_PATH="$HOME/.nix/Linux#iso"
+    LINUX_FLAKE_PATH="$HOME/nix-config/Linux#iso"
     log_info "Building ISO..."
     if ! nix build "$LINUX_FLAKE_PATH" --no-link --show-trace; then
         log_error "ISO build failed."
@@ -155,10 +155,12 @@ build_iso() {
 }
 
 install_nix_darwin() {
-    local MAC_FLAKE_PATH="$HOME/.nix/Mac#rohan"
+    local MAC_FLAKE_PATH="$HOME/nix-config/Mac#rohan"
     log_info "Installing Nix Darwin..."
     mkdir -p "$HOME/.config/nix"
-    echo "experimental-features = nix-command flakes" >> "$HOME/.config/nix/nix.conf"
+    if ! grep -q "experimental-features = nix-command flakes" "$HOME/.config/nix/nix.conf"; then
+        echo "experimental-features = nix-command flakes" >> "$HOME/.config/nix/nix.conf"
+    fi
     log_info "Installing nix-darwin..."
     if ! nix-build https://github.com/LnL7/nix-darwin/archive/master.tar.gz -A installer; then
         log_error "Failed to build nix-darwin installer"
@@ -182,7 +184,7 @@ install_nix_darwin() {
 }
 
 rebuild_nix_darwin() {
-    local MAC_FLAKE_PATH="$HOME/.nix/Mac#rohan"
+    local MAC_FLAKE_PATH="$HOME/nix-config/Mac#rohan"
     log_info "Rebuilding Nix Darwin configuration..."
     if ! command -v darwin-rebuild &> /dev/null; then
         log_error "darwin-rebuild command not found"
@@ -201,11 +203,11 @@ rebuild_nix_darwin() {
     fi
     if ! darwin-rebuild switch --flake "$MAC_FLAKE_PATH"; then
         log_error "Rebuild failed. Attempting to fix common issues..."
-        if [[ ! -d "$HOME/.nix/Mac" ]]; then
-            log_error "Flake directory not found at $HOME/.nix/Mac"
+        if [[ ! -d "$HOME/nix-config/Mac" ]]; then
+            log_error "Flake directory not found at $HOME/nix-config/Mac"
             exit 1
         fi
-        if ! nix flake check "$HOME/.nix/Mac"; then
+        if ! nix flake check "$HOME/nix-config/Mac"; then
             log_error "Flake check failed. Please verify your flake.nix configuration."
             exit 1
         fi

@@ -178,6 +178,7 @@
 
           homebrew = {
             enable = true;
+            brewPrefix = "/opt/homebrew";
             casks = [ 
               "brave-browser"
               "aerial"
