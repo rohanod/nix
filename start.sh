@@ -56,26 +56,30 @@ prompt_troubleshoot() {
 run_troubleshoot() {
     if [[ "$TROUBLESHOOT" == "1" ]]; then
         log_info "Starting troubleshooting steps..."
-
         log_info "Resetting Nix store permissions..."
         if sudo chown -R "$(whoami)" /nix/store && sudo chmod -R 755 /nix/store; then
             log_info "Nix store permissions reset successfully."
         else
             log_error "Failed to reset permissions on /nix/store."
         fi
-
         log_info "Removing stale lock files if any exist..."
         if sudo rm -f /nix/var/nix/profiles/per-user/*/profile.lock; then
             log_info "Stale lock files removed successfully."
         else
             log_warning "No lock files found, or unable to remove them."
         fi
-
         log_info "Cleaning up old Nix garbage..."
         if nix-collect-garbage -d; then
             log_info "Nix garbage collection completed successfully."
         else
-            log_warning "Garbage collection encountered issues. Check if there's enough space or other potential conflicts."
+            log_warning "Garbage collection encountered issues."
+        fi
+        log_info "Adjusting download buffer settings if needed..."
+        if ! grep -q 'download-buffer-size' "$HOME/.config/nix/nix.conf"; then
+            echo 'download-buffer-size = 1024M' | tee -a "$HOME/.config/nix/nix.conf"
+            log_info "Increased download buffer size setting added to nix.conf."
+        else
+            log_info "Download buffer size setting already exists."
         fi
     else
         log_info "Skipping troubleshooting as per user choice."
@@ -257,7 +261,7 @@ main() {
         echo "1: Build ISO"
         echo "2: Install Nix Darwin"
         echo "3: Rebuild Nix Darwin"
-        read -p "Enter your choice: " CHOICE
+        CHOICE=2
     fi
     case $CHOICE in
         1)
@@ -265,18 +269,8 @@ main() {
             build_iso
             ;;
         2)
-            if [[ "$INSTALL_NIX_DARWIN" == "1" ]]; then
-                install_choice="y"
-            else
-                read -p "Do you want to install your Nix Darwin Configuration? (y/n): " install_choice
-            fi
-            if [[ "$install_choice" == "y" || "$install_choice" == "Y" ]]; then
-                check_and_prompt_install_nix
-                install_nix_darwin
-            else
-                log_info "Nix Darwin installation skipped."
-                exit 1
-            fi
+            check_and_prompt_install_nix
+            install_nix_darwin
             ;;
         3)
             rebuild_nix_darwin

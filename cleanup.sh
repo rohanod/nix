@@ -1,10 +1,10 @@
 #!/bin/bash
 
 echo "Cleaning up garbage..."
-nix-collect-garbage
+nix-collect-garbage -d
 echo "Cleaning up unused nix store..."
 nix-store --gc
-echo 
+echo "Removing stale lock files..."
 sudo rm -f /nix/var/nix/profiles/per-user/*/profile.lock
 echo "Removing Homebrew..."
 sudo NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
