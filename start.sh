@@ -9,6 +9,7 @@ NC='\033[0m'
 
 INSTALL_NIX=0
 INSTALL_NIX_DARWIN=0
+TROUBLESHOOT=0
 
 for arg in "$@"; do
     case $arg in
@@ -41,6 +42,44 @@ log_warning() {
 
 log_error() {
     echo -e "${RED}[ERROR] $1${NC}"
+}
+
+prompt_troubleshoot() {
+    read -p "Do you want to troubleshoot permission and storage issues? (y/n): " troubleshoot_choice
+    if [[ "$troubleshoot_choice" == "y" || "$troubleshoot_choice" == "Y" ]]; then
+        TROUBLESHOOT=1
+    else
+        TROUBLESHOOT=0
+    fi
+}
+
+run_troubleshoot() {
+    if [[ "$TROUBLESHOOT" == "1" ]]; then
+        log_info "Starting troubleshooting steps..."
+
+        log_info "Resetting Nix store permissions..."
+        if sudo chown -R "$(whoami)" /nix/store && sudo chmod -R 755 /nix/store; then
+            log_info "Nix store permissions reset successfully."
+        else
+            log_error "Failed to reset permissions on /nix/store."
+        fi
+
+        log_info "Removing stale lock files if any exist..."
+        if sudo rm -f /nix/var/nix/profiles/per-user/*/profile.lock; then
+            log_info "Stale lock files removed successfully."
+        else
+            log_warning "No lock files found, or unable to remove them."
+        fi
+
+        log_info "Cleaning up old Nix garbage..."
+        if nix-collect-garbage -d; then
+            log_info "Nix garbage collection completed successfully."
+        else
+            log_warning "Garbage collection encountered issues. Check if there's enough space or other potential conflicts."
+        fi
+    else
+        log_info "Skipping troubleshooting as per user choice."
+    fi
 }
 
 check_system_requirements() {
@@ -158,18 +197,7 @@ install_nix_darwin() {
     local MAC_FLAKE_PATH="$HOME/nix-config/Mac#rohan"
     log_info "Installing Nix Darwin..."
     mkdir -p "$HOME/.config/nix"
-    if ! grep -q "experimental-features = nix-command flakes" "$HOME/.config/nix/nix.conf"; then
-        echo "experimental-features = nix-command flakes" >> "$HOME/.config/nix/nix.conf"
-    fi
-    log_info "Installing nix-darwin..."
-    if ! nix-build https://github.com/LnL7/nix-darwin/archive/master.tar.gz -A installer; then
-        log_error "Failed to build nix-darwin installer"
-        exit 1
-    fi
-    if ! ./result/bin/darwin-installer; then
-        log_error "Failed to run nix-darwin installer"
-        exit 1
-    fi
+    
     log_info "Switching to Nix Darwin configuration..."
     if ! nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch \
         --flake "$MAC_FLAKE_PATH" \
@@ -178,6 +206,8 @@ install_nix_darwin() {
         --max-jobs 20 \
         --cores 7; then
         log_error "Failed to switch Nix Darwin configuration"
+        prompt_troubleshoot
+        run_troubleshoot
         exit 1
     fi
     log_info "Nix Darwin installation and configuration switch completed successfully"
@@ -209,6 +239,8 @@ rebuild_nix_darwin() {
         fi
         if ! nix flake check "$HOME/nix-config/Mac"; then
             log_error "Flake check failed. Please verify your flake.nix configuration."
+            prompt_troubleshoot
+            run_troubleshoot
             exit 1
         fi
         log_info "Attempting rebuild with --show-trace..."
@@ -217,33 +249,9 @@ rebuild_nix_darwin() {
     log_info "Nix Darwin configuration rebuild completed successfully"
 }
 
-adjust_homebrew_group_permissions() {
-    local brew_dirs=("/opt/homebrew" "/usr/local/Homebrew")
-    for dir in "${brew_dirs[@]}"; do
-        if [ -d "$dir" ]; then
-            if [ ! -w "$dir" ]; then
-                log_warning "Adjusting group permissions for $dir"
-                if ! sudo chgrp -R admin "$dir"; then
-                    log_error "Failed to change group ownership of $dir"
-                    exit 1
-                fi
-                if ! sudo chmod -R g+w "$dir"; then
-                    log_error "Failed to set group write permissions on $dir"
-                    exit 1
-                fi
-                if ! sudo find "$dir" -type d -exec chmod g+s {} \;; then
-                    log_error "Failed to set setgid bit on directories in $dir"
-                    exit 1
-                fi
-            fi
-        fi
-    done
-}
-
 main() {
     check_system_requirements
     check_filesystem_permissions
-    adjust_homebrew_group_permissions
     if [[ -z "${CHOICE:-}" ]]; then
         echo "Available options:"
         echo "1: Build ISO"
@@ -260,7 +268,7 @@ main() {
             if [[ "$INSTALL_NIX_DARWIN" == "1" ]]; then
                 install_choice="y"
             else
-                read -p "Do you want to install Nix Darwin? (y/n): " install_choice
+                read -p "Do you want to install your Nix Darwin Configuration? (y/n): " install_choice
             fi
             if [[ "$install_choice" == "y" || "$install_choice" == "Y" ]]; then
                 check_and_prompt_install_nix
