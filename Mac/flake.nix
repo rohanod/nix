@@ -66,7 +66,6 @@
 
           nix.settings = {
               experimental-features = [ "nix-command" "flakes" ];
-              nix.optimise.automatic = true;
               trusted-users = [ "@admin" "rohan" ];
               max-jobs = 20;
               cores = 7;
@@ -79,6 +78,11 @@
                 "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
               ];
           };
+
+          nix.optimise = {
+              automatic = true;
+          };
+
 
           environment.systemPackages = [
             pkgs.tmux
