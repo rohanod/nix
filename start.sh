@@ -9,7 +9,6 @@ NC='\033[0m'
 
 INSTALL_NIX=0
 INSTALL_NIX_DARWIN=0
-TROUBLESHOOT=0
 
 for arg in "$@"; do
     case $arg in
@@ -44,45 +43,17 @@ log_error() {
     echo -e "${RED}[ERROR] $1${NC}"
 }
 
-prompt_troubleshoot() {
-    read -p "Do you want to troubleshoot permission and storage issues? (y/n): " troubleshoot_choice
-    if [[ "$troubleshoot_choice" == "y" || "$troubleshoot_choice" == "Y" ]]; then
-        TROUBLESHOOT=1
-    else
-        TROUBLESHOOT=0
-    fi
-}
-
-run_troubleshoot() {
-    if [[ "$TROUBLESHOOT" == "1" ]]; then
-        log_info "Starting troubleshooting steps..."
-        log_info "Resetting Nix store permissions..."
-        if sudo chown -R "$(whoami)" /nix/store && sudo chmod -R 755 /nix/store; then
-            log_info "Nix store permissions reset successfully."
-        else
-            log_error "Failed to reset permissions on /nix/store."
-        fi
-        log_info "Removing stale lock files if any exist..."
-        if sudo rm -f /nix/var/nix/profiles/per-user/*/profile.lock; then
-            log_info "Stale lock files removed successfully."
-        else
-            log_warning "No lock files found, or unable to remove them."
-        fi
-        log_info "Cleaning up old Nix garbage..."
-        if nix-collect-garbage -d; then
-            log_info "Nix garbage collection completed successfully."
-        else
-            log_warning "Garbage collection encountered issues."
-        fi
-        log_info "Adjusting download buffer settings if needed..."
-        if ! grep -q 'download-buffer-size' "$HOME/.config/nix/nix.conf"; then
-            echo 'download-buffer-size = 1024M' | tee -a "$HOME/.config/nix/nix.conf"
-            log_info "Increased download buffer size setting added to nix.conf."
-        else
-            log_info "Download buffer size setting already exists."
-        fi
-    else
-        log_info "Skipping troubleshooting as per user choice."
+backup_existing_file() {
+    local file_path="$1"
+    if [[ -f "$file_path" ]]; then
+        local timestamp
+        timestamp=$(date +%s)
+        local backup_path="${file_path}.backup-before-nix.${timestamp}"
+        log_warning "$file_path already exists. Backing up to $backup_path."
+        sudo mv "$file_path" "$backup_path" || {
+            log_error "Failed to back up $file_path to $backup_path."
+            exit 1
+        }
     fi
 }
 
@@ -92,117 +63,49 @@ check_system_requirements() {
         log_error "This script is intended for macOS only."
         exit 1
     fi
-    local required_tools=("curl" "git" "xcode-select")
-    for tool in "${required_tools[@]}"; do
-        if ! command -v "$tool" &> /dev/null; then
-            case $tool in
-                "xcode-select")
-                    log_warning "Command Line Tools not found. Installing..."
-                    xcode-select --install || {
-                        log_error "Failed to install Command Line Tools."
-                        log_info "Please install Command Line Tools manually using 'xcode-select --install'"
-                        exit 1
-                    }
-                    ;;
-                *)
-                    log_error "$tool is required but not installed."
-                    exit 1
-                    ;;
-            esac
-        fi
-    done
-}
-
-check_filesystem_permissions() {
-    log_info "Checking filesystem permissions..."
-    local dirs=("/nix" "$HOME/.nix-defexpr" "$HOME/.config/nix")
-    for dir in "${dirs[@]}"; do
-        if [[ ! -d "$dir" ]]; then
-            log_warning "Creating directory: $dir"
-            sudo mkdir -p "$dir" || {
-                log_error "Failed to create directory: $dir"
-                exit 1
-            }
-        fi
-    done
-    if [[ -d "/nix" ]]; then
-        if [[ "$(stat -f "%u" /nix)" != "$(id -u)" ]]; then
-            log_warning "Fixing /nix ownership..."
-            sudo chown -R "$(whoami)" /nix || {
-                log_error "Failed to fix /nix ownership"
-                exit 1
-            }
-        fi
+    if ! command -v curl &> /dev/null; then
+        log_error "curl is required but not installed."
+        exit 1
     fi
 }
 
-check_and_prompt_install_nix() {
+install_nix() {
     if ! command -v nix &> /dev/null; then
-        if [[ "$INSTALL_NIX" == "1" ]]; then
-            install_choice="y"
+        log_info "Installing Nix..."
+        
+        sudo rm -f /etc/bashrc.backup-before-nix
+        sudo rm -f /etc/zshrc.backup-before-nix
+        sudo rm -f /etc/bash.bashrc.backup-before-nix
+        
+        sh <(curl -L https://nixos.org/nix/install) || {
+            log_error "Nix installation failed."
+            exit 1
+        }
+        
+        if [[ -f '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]]; then
+            . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
         else
-            read -p "Nix is not installed. Do you want to install it? (y/n): " install_choice
-        fi
-        if [[ "$install_choice" == "y" || "$install_choice" == "Y" ]]; then
-            log_info "Installing Nix..."
-            check_filesystem_permissions
-            if [[ -f "$HOME/.config/nix/nix.conf" ]]; then
-                log_info "Backing up existing nix.conf..."
-                cp "$HOME/.config/nix/nix.conf" "$HOME/.config/nix/nix.conf.backup"
-            fi
-            if ! curl -L https://nixos.org/nix/install | sh; then
-                log_error "Nix installation failed. Checking common issues..."
-                if ! sudo launchctl list | grep -q "org.nixos.nix-daemon"; then
-                    log_warning "nix-daemon service not found. Attempting to load..."
-                    if ! sudo launchctl load /Library/LaunchDaemons/org.nixos.nix-daemon.plist; then
-                        log_error "Failed to load nix-daemon service"
-                        exit 1
-                    fi
-                fi
-                if [[ ! -f "/etc/synthetic.conf" ]] || ! grep -q "^nix" "/etc/synthetic.conf"; then
-                    log_warning "Missing /etc/synthetic.conf entry for nix"
-                    echo "nix" | sudo tee -a /etc/synthetic.conf
-                    log_info "Please restart your computer and run this script again."
-                    exit 1
-                fi
-                exit 1
-            fi
-            if [[ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]]; then
-                . "$HOME/.nix-profile/etc/profile.d/nix.sh"
-            else
-                log_error "Nix profile script not found after installation"
-                exit 1
-            fi
-            log_info "Nix installation completed successfully"
-        else
-            log_info "Nix installation skipped."
+            log_error "Could not find nix-daemon.sh after installation."
             exit 1
         fi
     fi
-}
-
-build_iso() {
-    LINUX_FLAKE_PATH="$HOME/nix-config/Linux#iso"
-    log_info "Building ISO..."
-    if ! nix build "$LINUX_FLAKE_PATH" --no-link --show-trace; then
-        log_error "ISO build failed."
-        exit 1
-    fi
-    ISO_OUTPUT_DIR="./result/iso"
-    ISO_NAME="nixos.iso"
-    if [ ! -f "$ISO_OUTPUT_DIR/$ISO_NAME" ]; then
-        log_error "ISO not found in output directory."
-        exit 1
-    fi
-    log_info "ISO build completed successfully."
 }
 
 install_nix_darwin() {
     local MAC_FLAKE_PATH="$HOME/nix-config/Mac#rohan"
     log_info "Installing Nix Darwin..."
     mkdir -p "$HOME/.config/nix"
+    local files_to_backup=(
+        "/etc/bashrc"
+        "/etc/profile.d/nix.sh"
+        "/etc/zshrc"
+        "/etc/bash.bashrc"
+        "/etc/zsh/zshrc"
+    )
+    for file in "${files_to_backup[@]}"; do
+        backup_existing_file "$file"
+    done
     
-    log_info "Switching to Nix Darwin configuration..."
     if ! nix run nix-darwin --extra-experimental-features "nix-command flakes" -- switch \
         --flake "$MAC_FLAKE_PATH" \
         --verbose \
@@ -210,66 +113,37 @@ install_nix_darwin() {
         --max-jobs 20 \
         --cores 7; then
         log_error "Failed to switch Nix Darwin configuration"
-        prompt_troubleshoot
-        run_troubleshoot
         exit 1
     fi
-    log_info "Nix Darwin installation and configuration switch completed successfully"
+    log_info "Nix Darwin installation completed successfully."
 }
 
 rebuild_nix_darwin() {
     local MAC_FLAKE_PATH="$HOME/nix-config/Mac#rohan"
     log_info "Rebuilding Nix Darwin configuration..."
-    if ! command -v darwin-rebuild &> /dev/null; then
-        log_error "darwin-rebuild command not found"
-        if [[ "$INSTALL_NIX_DARWIN" == "1" ]]; then
-            install_choice="y"
-        else
-            read -p "Required tools for rebuilding are missing. Do you want to install Nix Darwin? (y/n): " install_choice
-        fi
-        if [[ "$install_choice" == "y" || "$install_choice" == "Y" ]]; then
-            check_and_prompt_install_nix
-            install_nix_darwin
-        else
-            log_error "Rebuild aborted due to missing dependencies."
-            exit 1
-        fi
-    fi
     if ! darwin-rebuild switch --flake "$MAC_FLAKE_PATH"; then
-        log_error "Rebuild failed. Attempting to fix common issues..."
-        if [[ ! -d "$HOME/nix-config/Mac" ]]; then
-            log_error "Flake directory not found at $HOME/nix-config/Mac"
-            exit 1
-        fi
-        if ! nix flake check "$HOME/nix-config/Mac"; then
-            log_error "Flake check failed. Please verify your flake.nix configuration."
-            prompt_troubleshoot
-            run_troubleshoot
-            exit 1
-        fi
-        log_info "Attempting rebuild with --show-trace..."
-        darwin-rebuild switch --flake "$MAC_FLAKE_PATH" --show-trace
+        log_error "Failed to rebuild Nix Darwin configuration"
+        exit 1
     fi
-    log_info "Nix Darwin configuration rebuild completed successfully"
+    log_info "Nix Darwin configuration rebuild completed successfully."
 }
 
 main() {
     check_system_requirements
-    check_filesystem_permissions
     if [[ -z "${CHOICE:-}" ]]; then
         echo "Available options:"
         echo "1: Build ISO"
         echo "2: Install Nix Darwin"
         echo "3: Rebuild Nix Darwin"
-        CHOICE=2
+        read -p "Enter your choice (1/2/3): " CHOICE
     fi
     case $CHOICE in
         1)
-            check_and_prompt_install_nix
+            install_nix
             build_iso
             ;;
         2)
-            check_and_prompt_install_nix
+            install_nix
             install_nix_darwin
             ;;
         3)

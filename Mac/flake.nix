@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/24.05";
-    
+
     nix-darwin = {
       url = "github:LnL7/nix-darwin/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -13,7 +13,7 @@
       url = "github:zhaofengli-wip/nix-homebrew";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
+
     homebrew-core = {
       url = "github:Homebrew/homebrew-core";
       flake = false;
@@ -30,7 +30,7 @@
 
     pkgs = import nixpkgs {
       inherit system;
-      config = { 
+      config = {
         allowUnfree = true;
         allowUnsupportedSystem = false;
       };
@@ -40,7 +40,7 @@
     darwinConfigurations.rohan = nix-darwin.lib.darwinSystem {
       inherit system;
 
-      specialArgs = { 
+      specialArgs = {
         inherit pkgs;
       };
 
@@ -48,41 +48,78 @@
         nix-homebrew.darwinModules.nix-homebrew
 
         ({ pkgs, config, lib, ... }: {
+
           users.users.rohan = {
             home = "/Users/rohan";
           };
+
           nix-homebrew = {
             enable = true;
             enableRosetta = true;
             user = "rohan";
-
+            
             taps = {
               "homebrew/homebrew-core" = homebrew-core;
               "homebrew/homebrew-cask" = homebrew-cask;
             };
-
             mutableTaps = false;
           };
 
-          nix.settings = {
-              experimental-features = [ "nix-command" "flakes" ];
-              trusted-users = [ "@admin" "rohan" ];
-              max-jobs = 20;
-              cores = 7;
-              substituters = [
-                "https://cache.nixos.org"
-                "https://nix-community.cachix.org"
-              ];
-              trusted-public-keys = [
-                "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-                "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-              ];
+          homebrew = {
+            enable = true;
+            brewPrefix = "/opt/homebrew";
+            casks = [
+              "brave-browser"
+              "aerial"
+              "docker"
+              "chatgpt"
+              "hovrly"
+              "keyclu"
+              "miniconda"
+              "shottr"
+              "mounty"
+              "vmware-fusion"
+              "tor-browser"
+              "raspberry-pi-imager"
+              "ultimaker-cura"
+              "obs"
+              "zed"
+              "parsec"
+              "sigmaos"
+              "google-chrome"
+              "raycast"
+              "spotify"
+              "ariang"
+              "vagrant"
+              "downie"
+            ];
+            brews = [
+              "docker-compose"
+              "create-dmg"
+              "cabextract"
+              "wimlib"
+              "cdrtools"
+              "tree"
+            ];
+            masApps = {
+              "Keka" = 470158793;
+              "Surfshark VPN" = 1437809329;
+              "Speediness" = 1596706466;
+              "Online Check" = 6504709660;
+              "Diffusers" = 1666309574;
+              "Dropover" = 1355679052;
+              "Hyperduck" = 6444667067;
+              "Draw Things" = 6444050820;
+              "Localsend" = 1661733229;
+              "Velja" = 1607635845;
+              "Whatsapp" = 310633997;
+              "Crystal Fetch" = 6454431289;
+              "Twingate" = 1501592214;
+            };
+            onActivation.cleanup = "zap";
           };
 
-          nix.optimise = {
-              automatic = true;
-          };
-
+          services.nix-daemon.enable = true;
 
           environment.systemPackages = [
             pkgs.tmux
@@ -113,6 +150,32 @@
             pkgs.nixd
             pkgs.git-credential-manager
             pkgs.dotnet-runtime_8
+            pkgs.nodejs_22
+            pkgs.blender
+          ];
+
+          nix.settings = {
+            experimental-features = [ "nix-command" "flakes" ];
+            trusted-users = [ "@admin" "rohan" ];
+            max-jobs = 20;
+            cores = 7;
+            substituters = [
+              "https://cache.nixos.org"
+              "https://nix-community.cachix.org"
+            ];
+          };
+
+          nix.optimise = {
+            automatic = true;
+            user = "rohan";
+          };
+
+          nixpkgs.overlays = [
+            (final: prev: {
+              libiconv = prev.libiconv.overrideAttrs (old: {
+                doCheck = false;
+              });
+            })
           ];
 
           system.activationScripts.fetchScreensaverFiles = ''
@@ -133,7 +196,7 @@
               rm -rf /Applications/Nix\ Apps
               mkdir -p /Applications/Nix\ Apps
               find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
-              while read src; do
+              while read -r src; do
                 app_name=$(basename "$src")
                 echo "copying $src" >&2
                 ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
@@ -179,60 +242,6 @@
                 end run
                 '
           '';
-
-          homebrew = {
-            enable = true;
-            brewPrefix = "/opt/homebrew";
-            casks = [ 
-              "brave-browser"
-              "aerial"
-              "docker"
-              "chatgpt"
-              "hovrly"
-              "keyclu"
-              "miniconda"
-              "shottr"
-              "mounty"
-              "vmware-fusion"
-              "tor-browser"
-              "raspberry-pi-imager"
-              "ultimaker-cura"
-              "obs"
-              "zed"
-              "parsec"
-              "twingate"
-              "sigmaos"
-              "google-chrome"
-              "raycast"
-              "spotify"
-              "ariang"
-              "vagrant"
-            ];
-            brews = [
-              "docker-compose"
-              "create-dmg"
-              "cabextract"
-              "wimlib"
-              "cdrtools"
-            ];
-            masApps = {
-              "Keka" = 470158793;
-              "Surfshark VPN" = 1437809329;
-              "Speediness" = 1596706466;
-              "Online Check" = 6504709660;
-              "Diffusers" = 1666309574;
-              "Dropover" = 1355679052;
-              "Hyperduck" = 6444667067;
-              "Draw Things" = 6444050820;
-              "Localsend" = 1661733229;
-              "Velja" = 1607635845;
-              "Whatsapp" = 310633997;
-              "Crystal Fetch" = 6454431289;
-            };
-            onActivation.cleanup = "zap";
-          };
-
-          services.nix-daemon.enable = true;
 
           system.activationScripts.displaySettings.text = ''
             /usr/bin/defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
